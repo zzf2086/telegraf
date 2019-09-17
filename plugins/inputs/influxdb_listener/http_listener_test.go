@@ -5,8 +5,10 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"runtime"
 	"strconv"
 	"sync"
@@ -15,6 +17,7 @@ import (
 
 	"github.com/influxdata/telegraf/internal"
 	"github.com/influxdata/telegraf/testutil"
+	"github.com/influxdata/wlog"
 
 	"github.com/stretchr/testify/require"
 )
@@ -41,6 +44,11 @@ cpu_load_short,host=server06 value=12.0 1422568543702900257
 var (
 	pki = testutil.NewPKI("../../../testutil/pki")
 )
+
+func init() {
+	wlog.SetLevelFromName("OFF")
+	log.SetOutput(wlog.NewWriter(os.Stdout))
+}
 
 func newTestHTTPListener() *HTTPListener {
 	listener := &HTTPListener{
@@ -114,6 +122,41 @@ func TestWriteHTTPSNoClientAuth(t *testing.T) {
 	require.EqualValues(t, 204, resp.StatusCode)
 }
 
+func BenchmarkWriteHTTPSNoClientAuth(b *testing.B) {
+	listener := newTestHTTPSListener()
+	listener.TLSAllowedCACerts = nil
+
+	acc := &testutil.Accumulator{}
+	err := listener.Start(acc)
+	if err != nil {
+		b.Error(err)
+	}
+	defer listener.Stop()
+
+	cas := x509.NewCertPool()
+	cas.AppendCertsFromPEM([]byte(pki.ReadServerCert()))
+	noClientAuthClient := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: cas,
+			},
+		},
+	}
+	url := createURL(listener, "https", "/write", "db=mydb")
+	body := bytes.NewBufferString(testMsg)
+
+	for n := 0; n < b.N; n++ {
+		resp, err := noClientAuthClient.Post(url, "", body)
+		if err != nil {
+			b.Error(err)
+		}
+		resp.Body.Close()
+		if http.StatusNoContent != resp.StatusCode {
+			b.Errorf("Status codes not equal %d:%d", http.StatusNoContent, resp.StatusCode)
+		}
+	}
+}
+
 func TestWriteHTTPSWithClientAuth(t *testing.T) {
 	listener := newTestHTTPSListener()
 
@@ -126,6 +169,33 @@ func TestWriteHTTPSWithClientAuth(t *testing.T) {
 	require.NoError(t, err)
 	resp.Body.Close()
 	require.EqualValues(t, 204, resp.StatusCode)
+}
+
+func BenchmarkWriteHTTPSWithClientAuth(b *testing.B) {
+	listener := newTestHTTPSListener()
+
+	acc := &testutil.Accumulator{}
+	err := listener.Start(acc)
+	if err != nil {
+		b.Error(err)
+	}
+	defer listener.Stop()
+
+	client := getHTTPSClient()
+	url := createURL(listener, "https", "/write", "db=mydb")
+	body := bytes.NewBufferString(testMsg)
+
+	for n := 0; n < b.N; n++ {
+		resp, err := client.Post(url, "", body)
+		if err != nil {
+			b.Error(err)
+		}
+		resp.Body.Close()
+
+		if http.StatusNoContent != resp.StatusCode {
+			b.Errorf("Status codes not equal %d:%d", http.StatusNoContent, resp.StatusCode)
+		}
+	}
 }
 
 func TestWriteHTTPBasicAuth(t *testing.T) {
@@ -144,6 +214,36 @@ func TestWriteHTTPBasicAuth(t *testing.T) {
 	require.NoError(t, err)
 	resp.Body.Close()
 	require.EqualValues(t, http.StatusNoContent, resp.StatusCode)
+}
+
+func BenchmarkWriteHTTPBasicAuth(b *testing.B) {
+	listener := newTestHTTPAuthListener()
+
+	acc := &testutil.Accumulator{}
+	err := listener.Start(acc)
+	if err != nil {
+		b.Error(err)
+	}
+	defer listener.Stop()
+
+	req, err := http.NewRequest("POST", createURL(listener, "http", "/write", "db=mydb"), bytes.NewBuffer([]byte(testMsg)))
+	if err != nil {
+		b.Error(err)
+	}
+
+	req.SetBasicAuth(basicUsername, basicPassword)
+
+	for n := 0; n < b.N; n++ {
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			b.Error(err)
+		}
+
+		resp.Body.Close()
+		if http.StatusNoContent != resp.StatusCode {
+			b.Errorf("Status codes not equal %d:%d", http.StatusNoContent, resp.StatusCode)
+		}
+	}
 }
 
 func TestWriteHTTPKeepDatabase(t *testing.T) {
@@ -234,6 +334,36 @@ func TestWriteHTTPMaxLineSizeIncrease(t *testing.T) {
 	require.NoError(t, err)
 	resp.Body.Close()
 	require.EqualValues(t, 204, resp.StatusCode)
+}
+
+func BenchmarkWriteHTTPMaxLineSizeIncrease(b *testing.B) {
+	listener := &HTTPListener{
+		ServiceAddress: "localhost:0",
+		MaxLineSize:    internal.Size{Size: 128 * 1000},
+		TimeFunc:       time.Now,
+	}
+
+	acc := &testutil.Accumulator{}
+	err := listener.Start(acc)
+	if err != nil {
+		b.Error(err)
+	}
+
+	defer listener.Stop()
+	url := createURL(listener, "http", "/write", "db=mydb")
+	body := bytes.NewBufferString(hugeMetric)
+
+	for n := 0; n < b.N; n++ {
+		resp, err := http.Post(url, "", body)
+		if err != nil {
+			b.Error(err)
+		}
+
+		resp.Body.Close()
+		if http.StatusNoContent != resp.StatusCode {
+			b.Errorf("Status codes not equal %d:%d", http.StatusNoContent, resp.StatusCode)
+		}
+	}
 }
 
 func TestWriteHTTPVerySmallMaxBody(t *testing.T) {
