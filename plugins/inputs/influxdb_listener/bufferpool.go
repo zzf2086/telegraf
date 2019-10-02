@@ -32,10 +32,7 @@ func (p *pool) get() []byte {
 }
 
 func (p *pool) put(b []byte) {
-	select {
-	case p.buffers <- b:
-	default:
-	}
+	p.buffers <- b
 }
 
 func (p *pool) ncreated() int64 {

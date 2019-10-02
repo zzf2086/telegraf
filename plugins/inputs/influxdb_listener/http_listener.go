@@ -295,6 +295,7 @@ func (h *HTTPListener) serveWrite(res http.ResponseWriter, req *http.Request) {
 			badRequest(res, err.Error())
 			return
 		}
+		defer body.Close()
 		h.BytesRecv.Incr(int64(n))
 
 		if err == io.EOF {
