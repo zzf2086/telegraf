@@ -58,6 +58,10 @@ and use the old zookeeper connection method.
   ## waiting until the next flush_interval.
   # max_undelivered_messages = 1000
 
+  ## The maximum amount of time the consumer expects a message takes to
+  ## process for the user.
+  # max_processing_time = 500ms
+
   ## Data format to consume.
   ## Each data format has its own unique set of configuration options, read
   ## more about them here:

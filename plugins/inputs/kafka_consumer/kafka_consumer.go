@@ -6,9 +6,11 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/influxdata/telegraf"
+	"github.com/influxdata/telegraf/internal"
 	"github.com/influxdata/telegraf/internal/tls"
 	"github.com/influxdata/telegraf/plugins/inputs"
 	"github.com/influxdata/telegraf/plugins/parsers"
@@ -63,6 +65,10 @@ const sampleConfig = `
   ## waiting until the next flush_interval.
   # max_undelivered_messages = 1000
 
+  ## The maximum amount of time the consumer expects a message takes to
+  ## process for the user.
+  # max_processing_time = 500ms
+
   ## Data format to consume.
   ## Each data format has its own unique set of configuration options, read
   ## more about them here:
@@ -80,17 +86,18 @@ type empty struct{}
 type semaphore chan empty
 
 type KafkaConsumer struct {
-	Brokers                []string `toml:"brokers"`
-	ClientID               string   `toml:"client_id"`
-	ConsumerGroup          string   `toml:"consumer_group"`
-	MaxMessageLen          int      `toml:"max_message_len"`
-	MaxUndeliveredMessages int      `toml:"max_undelivered_messages"`
-	Offset                 string   `toml:"offset"`
-	Topics                 []string `toml:"topics"`
-	TopicTag               string   `toml:"topic_tag"`
-	Version                string   `toml:"version"`
-	SASLPassword           string   `toml:"sasl_password"`
-	SASLUsername           string   `toml:"sasl_username"`
+	Brokers                []string          `toml:"brokers"`
+	ClientID               string            `toml:"client_id"`
+	ConsumerGroup          string            `toml:"consumer_group"`
+	MaxMessageLen          int               `toml:"max_message_len"`
+	MaxUndeliveredMessages int               `toml:"max_undelivered_messages"`
+	Offset                 string            `toml:"offset"`
+	Topics                 []string          `toml:"topics"`
+	TopicTag               string            `toml:"topic_tag"`
+	Version                string            `toml:"version"`
+	SASLPassword           string            `toml:"sasl_password"`
+	SASLUsername           string            `toml:"sasl_username"`
+	MaxProcessingTime      internal.Duration `toml:"max_processing_time"`
 
 	tls.ClientConfig
 
@@ -141,6 +148,7 @@ func (k *KafkaConsumer) Init() error {
 
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
+	config.Consumer.MaxProcessingTime = k.MaxProcessingTime.Duration
 
 	// Kafka version 0.10.2.0 is required for consumer groups.
 	config.Version = sarama.V0_10_2_0
@@ -403,6 +411,10 @@ func (h *ConsumerGroupHandler) Cleanup(sarama.ConsumerGroupSession) error {
 
 func init() {
 	inputs.Add("kafka_consumer", func() telegraf.Input {
-		return &KafkaConsumer{}
+		return &KafkaConsumer{
+			MaxProcessingTime: internal.Duration{
+				Duration: 500 * time.Millisecond,
+			},
+		}
 	})
 }
