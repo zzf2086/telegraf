@@ -1,8 +1,17 @@
 ## v1.13 [unreleased]
 
+#### Release Notes
+
+- Official packages are built with Go 1.13.1.
+
 #### New Inputs
 
 - [azure_storage_queue](/plugins/inputs/azure_storage_queue/README.md) - Contributed by @mjiderhamn
+- [suricata](/plugins/inputs/suricata/README.md) - Contributed by @satta
+
+#### New Aggregators
+
+- [merge](/plugins/aggregators/merge/README.md) - Contributed by @influxdata
 
 #### Features
 
@@ -10,14 +19,33 @@
 - [#6361](https://github.com/influxdata/telegraf/pull/6361): Add ability to read query from file to postgresql_extensible input.
 - [#5921](https://github.com/influxdata/telegraf/pull/5921): Add replication metrics to the redis input.
 - [#6177](https://github.com/influxdata/telegraf/pull/6177): Support NX-OS telemetry extensions in cisco_telemetry_mdt.
+- [#6415](https://github.com/influxdata/telegraf/pull/6415): Allow graphite parser to create Inf and NaN values.
+- [#6434](https://github.com/influxdata/telegraf/pull/6434): Use prefix base detection for ints in grok parser.
+- [#6465](https://github.com/influxdata/telegraf/pull/6465): Add more performance counter metrics to sqlserver input.
+- [#6476](https://github.com/influxdata/telegraf/pull/6476): Add millisecond unix time support to grok parser.
+- [#6473](https://github.com/influxdata/telegraf/pull/6473): Add container id as optional source tag to docker and docker_log input.
 
-## v1.12.2 [unreleased]
+## v1.12.3 [2019-10-07]
+
+#### Bugfixes
+
+- [#6445](https://github.com/influxdata/telegraf/issues/6445): Use batch serialization format in exec output.
+- [#6455](https://github.com/influxdata/telegraf/issues/6455): Build official packages with Go 1.12.10.
+- [#6464](https://github.com/influxdata/telegraf/pull/6464): Use case insensitive serial numer match in smart input.
+- [#6469](https://github.com/influxdata/telegraf/pull/6469): Add auth header only when env var is set.
+- [#6468](https://github.com/influxdata/telegraf/pull/6468): Fix running multiple mysql and sqlserver plugin instances.
+- [#6471](https://github.com/influxdata/telegraf/issues/6471): Fix database routing on retry with exclude_database_tag.
+- [#6488](https://github.com/influxdata/telegraf/issues/6488): Fix logging panic in exec input with nagios data format.
+
+## v1.12.2 [2019-09-24]
 
 #### Bugfixes
 
 - [#6386](https://github.com/influxdata/telegraf/issues/6386): Fix detection of layout timestamps in csv and json parser.
 - [#6394](https://github.com/influxdata/telegraf/issues/6394): Fix parsing of BATTDATE in apcupsd input.
 - [#6398](https://github.com/influxdata/telegraf/issues/6398): Keep boolean values listed in json_string_fields.
+- [#6393](https://github.com/influxdata/telegraf/issues/6393): Disable Go plugin support in official builds.
+- [#6391](https://github.com/influxdata/telegraf/issues/6391): Fix path handling issues in cisco_telemetry_gnmi.
 
 ## v1.12.1 [2019-09-10]
 

@@ -53,6 +53,7 @@ func init() {
 
 func newTestHTTPListener() *HTTPListener {
 	listener := &HTTPListener{
+		Log:            testutil.Logger{},
 		ServiceAddress: "localhost:0",
 		TimeFunc:       time.Now,
 	}
@@ -68,6 +69,7 @@ func newTestHTTPAuthListener() *HTTPListener {
 
 func newTestHTTPSListener() *HTTPListener {
 	listener := &HTTPListener{
+		Log:            testutil.Logger{},
 		ServiceAddress: "localhost:0",
 		ServerConfig:   *pki.TLSServerConfig(),
 		TimeFunc:       time.Now,
@@ -321,6 +323,7 @@ func TestWriteHTTPNoNewline(t *testing.T) {
 
 func TestWriteHTTPMaxLineSizeIncrease(t *testing.T) {
 	listener := &HTTPListener{
+		Log:            testutil.Logger{},
 		ServiceAddress: "localhost:0",
 		MaxLineSize:    internal.Size{Size: 128 * 1000},
 		TimeFunc:       time.Now,
@@ -369,6 +372,7 @@ func BenchmarkWriteHTTPMaxLineSizeIncrease(b *testing.B) {
 
 func TestWriteHTTPVerySmallMaxBody(t *testing.T) {
 	listener := &HTTPListener{
+		Log:            testutil.Logger{},
 		ServiceAddress: "localhost:0",
 		MaxBodySize:    internal.Size{Size: 4096},
 		TimeFunc:       time.Now,
@@ -386,6 +390,7 @@ func TestWriteHTTPVerySmallMaxBody(t *testing.T) {
 
 func TestWriteHTTPVerySmallMaxLineSize(t *testing.T) {
 	listener := &HTTPListener{
+		Log:            testutil.Logger{},
 		ServiceAddress: "localhost:0",
 		MaxLineSize:    internal.Size{Size: 70},
 		TimeFunc:       time.Now,
@@ -413,6 +418,7 @@ func TestWriteHTTPVerySmallMaxLineSize(t *testing.T) {
 
 func TestWriteHTTPLargeLinesSkipped(t *testing.T) {
 	listener := &HTTPListener{
+		Log:            testutil.Logger{},
 		ServiceAddress: "localhost:0",
 		MaxLineSize:    internal.Size{Size: 100},
 		TimeFunc:       time.Now,
