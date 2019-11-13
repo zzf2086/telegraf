@@ -90,7 +90,7 @@ targets = {
 supported_builds = {
     'darwin': [ "amd64" ],
     "windows": [ "amd64", "i386" ],
-    "linux": [ "amd64", "i386", "armhf", "armel", "arm64", "static_amd64", "s390x", "mipsel", "mips"],
+    "linux": [ "amd64", "i386", "armhf", "armel", "arm64", "static_amd64", "s390x", "mipsel", "mips", "ppc64el"],
     "freebsd": [ "amd64", "i386" ]
 }
 
@@ -462,6 +462,8 @@ def build(version=None,
             goarch = "arm"
         elif arch == "mipsel":
             goarch = "mipsle"
+        elif arch == "ppc64el":
+            goarch = "ppc64le"
         build_command += "GOOS={} GOARCH={} ".format(platform, goarch)
 
         if "arm" in arch:
