@@ -592,6 +592,8 @@ def package(build_output, pkg_name, version, nightly=False, iteration=1, static=
                         package_arch = arch.replace("static_", "")
                     elif package_type == "rpm" and arch == 'armhf':
                         package_arch = 'armv6hl'
+                    elif package_type == "rpm" and arch == "ppc64el":
+                        package_arch = "ppc64le"
                     else:
                         package_arch = arch
                     if not version:
