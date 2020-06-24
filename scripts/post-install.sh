@@ -43,10 +43,6 @@ if [[ ! -d /etc/telegraf/telegraf.d ]]; then
     mkdir -p /etc/telegraf/telegraf.d
 fi
 
-# If 'telegraf.conf' is not present use package's sample (fresh install)
-if [[ ! -f /etc/telegraf/telegraf.conf ]] && [[ -f /etc/telegraf/telegraf.conf.sample ]]; then
-   cp /etc/telegraf/telegraf.conf.sample /etc/telegraf/telegraf.conf
-fi
 
 # Distribution-specific logic
 if [[ -f /etc/redhat-release ]] || [[ -f /etc/SuSE-release ]]; then
@@ -65,6 +61,11 @@ if [[ -f /etc/redhat-release ]] || [[ -f /etc/SuSE-release ]]; then
     fi
 elif [[ -f /etc/debian_version ]]; then
     # Debian/Ubuntu logic
+
+	# If 'telegraf.conf' is not present use package's sample (fresh install)
+	if [[ ! -f /etc/telegraf/telegraf.conf ]] && [[ -f /etc/telegraf/telegraf.conf.sample ]]; then
+	   cp /etc/telegraf/telegraf.conf.sample /etc/telegraf/telegraf.conf
+	fi
 
     # Ownership for RH-based platforms is set in build.py via the `rmp-attr` option.
     # We perform ownership change only for Debian-based systems.
