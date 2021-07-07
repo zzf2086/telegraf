@@ -1098,6 +1098,9 @@ func (c *Config) addOutput(name string, table *ast.Table) error {
 		return err
 	}
 
+	// Use line of the plugin table as ID
+	outputConfig.ID = table.Position.Begin
+
 	if err := c.toml.UnmarshalTable(table, output); err != nil {
 		return err
 	}
@@ -1148,7 +1151,7 @@ func (c *Config) addInput(name string, table *ast.Table) error {
 	}
 
 	// Use line of the plugin table as ID
-	pluginConfig.ID = table.Line
+	pluginConfig.ID = table.Position.Begin
 
 	if err := c.toml.UnmarshalTable(table, input); err != nil {
 		return err
