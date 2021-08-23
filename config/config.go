@@ -1159,7 +1159,6 @@ func (c *Config) addInput(name string, table *ast.Table) error {
 
 	rp := models.NewRunningInput(input, pluginConfig)
 	rp.SetDefaultTags(c.Tags)
-
 	c.Inputs = append(c.Inputs, rp)
 	return nil
 }
