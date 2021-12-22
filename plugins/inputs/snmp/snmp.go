@@ -620,6 +620,9 @@ func (s *Snmp) getConnection(idx int) (snmpConnection, error) {
 	var err error
 	var gs snmp.GosnmpWrapper
 	gs, err = snmp.NewWrapper(s.ClientConfig)
+	if strings.ContainsAny(agent, "udp") {
+		gs.UseUnconnectedUDPSocket = true
+	}
 	if err != nil {
 		return nil, err
 	}

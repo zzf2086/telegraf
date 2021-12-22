@@ -36,6 +36,7 @@ type SnmpTrap struct {
 
 	acc        telegraf.Accumulator
 	listener   *gosnmp.TrapListener
+	udp        *gosnmp.GoSNMP
 	timeFunc   func() time.Time
 	lookupFunc func(string) (snmp.MibEntry, error)
 	errCh      chan error
@@ -116,6 +117,9 @@ func (s *SnmpTrap) Start(acc telegraf.Accumulator) error {
 	s.listener = gosnmp.NewTrapListener()
 	s.listener.OnNewTrap = makeTrapHandler(s)
 	s.listener.Params = gosnmp.Default
+	s.udp = &gosnmp.GoSNMP{
+		UseUnconnectedUDPSocket: true,
+	}
 
 	switch s.Version {
 	case "3":
