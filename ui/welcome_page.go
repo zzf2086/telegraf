@@ -41,15 +41,18 @@ func NewWelcomePage(v string) WelcomePage {
 	}
 
 	itemsTutorial := []list.Item{
-		item{title: "How Telegraf works", desc: "..."},
-		item{title: "Set up", desc: "..."},
-		item{title: "Showing me around", desc: "..."},
+		item{title: "Installing", desc: ""},
+		item{title: "Configuring and Running", desc: ""},
+		item{title: "Transforming Data", desc: ""},
 	}
 
 	var tabcontent []list.Model
-	defaultWidth = 40
+	defaultWidth = 80
 	tabcontent = append(tabcontent, list.NewModel(itemsWelcome, list.NewDefaultDelegate(), defaultWidth, listHeight))
-	tabcontent = append(tabcontent, list.NewModel(itemsTutorial, list.NewDefaultDelegate(), defaultWidth, listHeight))
+	tabcontent = append(tabcontent, list.NewModel(itemsTutorial, list.DefaultDelegate{
+		ShowDescription: false,
+		Styles:          list.NewDefaultItemStyles(),
+	}, defaultWidth, listHeight))
 	return WelcomePage{Tabs: tabs, TabContent: tabcontent}
 }
 
@@ -105,14 +108,12 @@ func (w *WelcomePage) View() string {
 	}
 
 	// Welcome message
-	{
-		if w.activatedTab == 0 { // Welcome Page tab
-			s := "Welcome to Telegraf! 🥳 \n\n"
-			s += fmt.Sprintf("You are on %s \n\n", version)
-			_, err := doc.WriteString(s)
-			if err != nil {
-				return err.Error()
-			}
+	if w.activatedTab == 0 { // Welcome Page tab
+		s := "Welcome to Telegraf! 🥳 \n\n"
+		s += fmt.Sprintf("You are on %s \n\n", version)
+		_, err := doc.WriteString(s)
+		if err != nil {
+			return err.Error()
 		}
 	}
 
