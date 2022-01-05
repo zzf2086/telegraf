@@ -15,6 +15,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/fatih/color"
 
 	"github.com/influxdata/tail/watch"
@@ -24,12 +26,15 @@ import (
 	"github.com/influxdata/telegraf/internal"
 	"github.com/influxdata/telegraf/internal/goplugin"
 	"github.com/influxdata/telegraf/logger"
+	"github.com/influxdata/telegraf/plugins/aggregators"
 	_ "github.com/influxdata/telegraf/plugins/aggregators/all"
 	"github.com/influxdata/telegraf/plugins/inputs"
 	_ "github.com/influxdata/telegraf/plugins/inputs/all"
 	"github.com/influxdata/telegraf/plugins/outputs"
 	_ "github.com/influxdata/telegraf/plugins/outputs/all"
+	"github.com/influxdata/telegraf/plugins/processors"
 	_ "github.com/influxdata/telegraf/plugins/processors/all"
+	"github.com/influxdata/telegraf/ui"
 	"gopkg.in/tomb.v1"
 )
 
@@ -44,6 +49,8 @@ func (i *sliceFlags) Set(value string) error {
 	*i = append(*i, value)
 	return nil
 }
+
+var fTeaPlugins = flag.Bool("plugins-ui", false, "test")
 
 // If you update these, update usage.go and usage_windows.go
 var fDebug = flag.Bool("debug", false,
@@ -478,6 +485,54 @@ func main() {
 		err2 := config.PrintOutputConfig(*fUsage)
 		if err != nil && err2 != nil {
 			log.Fatalf("E! %s and %s", err, err2)
+		}
+		return
+	case *fTeaPlugins:
+		tabs := []string{
+			"Inputs",
+			"Outputs",
+			"Aggregators",
+			"Processors",
+		}
+
+		var inputContent, outputContent, aggregatorContent, processorContent []list.Item
+
+		for name, creator := range inputs.Inputs {
+			inputContent = append(inputContent, ui.Item{ItemTitle: name, Desc: creator().Description()})
+		}
+
+		for name, creator := range outputs.Outputs {
+			outputContent = append(outputContent, ui.Item{ItemTitle: name, Desc: creator().Description()})
+		}
+
+		for name, creator := range aggregators.Aggregators {
+			aggregatorContent = append(aggregatorContent, ui.Item{ItemTitle: name, Desc: creator().Description()})
+		}
+
+		for name, creator := range processors.Processors {
+			processorContent = append(processorContent, ui.Item{ItemTitle: name, Desc: creator().Description()})
+		}
+		// outputContent := []list.Item{
+		// 	ui.Item{ItemTitle: "cpu1", Desc: "gathers cpu1 metrics"},
+		// }
+		// aggregatorContent := []list.Item{
+		// 	ui.Item{ItemTitle: "cpu2", Desc: "gathers cpu2 metrics"},
+		// }
+		// processorContent := []list.Item{
+		// 	ui.Item{ItemTitle: "cpu3", Desc: "gathers cpu3 metrics"},
+		// }
+
+		var t []list.Model
+		t = append(t, list.NewModel(inputContent, list.NewDefaultDelegate(), 0, 0))
+		t = append(t, list.NewModel(outputContent, list.NewDefaultDelegate(), 0, 0))
+		t = append(t, list.NewModel(aggregatorContent, list.NewDefaultDelegate(), 0, 0))
+		t = append(t, list.NewModel(processorContent, list.NewDefaultDelegate(), 0, 0))
+
+		m := ui.Model{Tabs: tabs, TabContent: t}
+
+		if err := tea.NewProgram(m).Start(); err != nil {
+			fmt.Println("Error running program:", err)
+			os.Exit(1)
 		}
 		return
 	}
