@@ -106,11 +106,13 @@ func (w *WelcomePage) View() string {
 
 	// Welcome message
 	{
-		s := "Welcome to Telegraf! 🥳 \n\n"
-		s += fmt.Sprintf("You are on %s \n\n", version)
-		_, err := doc.WriteString(s)
-		if err != nil {
-			return err.Error()
+		if w.activatedTab == 0 { // Welcome Page tab
+			s := "Welcome to Telegraf! 🥳 \n\n"
+			s += fmt.Sprintf("You are on %s \n\n", version)
+			_, err := doc.WriteString(s)
+			if err != nil {
+				return err.Error()
+			}
 		}
 	}
 
