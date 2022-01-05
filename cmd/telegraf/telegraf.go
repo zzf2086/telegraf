@@ -485,7 +485,8 @@ func main() {
 		}
 		return
 	case *fHelpUI:
-		h := ui.NewHelpUI()
+		version := formatFullVersion()
+		h := ui.NewHelpUI(version)
 		if err := tea.NewProgram(h).Start(); err != nil {
 			fmt.Println("Error running program:", err)
 			os.Exit(1)
