@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
@@ -9,6 +10,8 @@ import (
 )
 
 const listHeight = 20
+
+var version string
 
 type item struct {
 	title, desc string
@@ -25,11 +28,12 @@ type WelcomePage struct {
 	activatedTab int
 }
 
-func NewWelcomePage() WelcomePage {
+func NewWelcomePage(v string) WelcomePage {
 	tabs := []string{
 		"Welcome Page",
 		"Tutorial",
 	}
+	version = v
 
 	items_welcome := []list.Item{
 		item{title: "Show Plugins", desc: "All the plugins supported by Telegraf"},
@@ -102,7 +106,9 @@ func (w *WelcomePage) View() string {
 
 	// Welcome message
 	{
-		_, err := doc.WriteString("Welcome to Telegraf!\n\n")
+		s := "Welcome to Telegraf! 🥳 \n\n"
+		s += fmt.Sprintf("You are on %s \n\n", version)
+		_, err := doc.WriteString(s)
 		if err != nil {
 			return err.Error()
 		}
@@ -113,6 +119,9 @@ func (w *WelcomePage) View() string {
 	if err != nil {
 		return err.Error()
 	}
+
+	// style
+	docStyle.Foreground(lipgloss.Color("#BF2FE5"))
 
 	return docStyle.Render(doc.String())
 }

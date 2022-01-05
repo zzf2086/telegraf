@@ -19,14 +19,14 @@ type HelpUI struct {
 	currentPage int
 }
 
-func NewHelpUI() HelpUI {
+func NewHelpUI(version string) HelpUI {
 	// [ Welcome ] [ Tutorial ]
 	// Telegraf, the plugin thingie
 	//
 	// > Show Plugins
 	// > Show Flags
 
-	w := NewWelcomePage()
+	w := NewWelcomePage(version)
 	p := NewPluginPage()
 
 	var pages []Pages
