@@ -28,12 +28,14 @@ func NewHelpUI() HelpUI {
 
 	w := NewWelcomePage()
 	p := NewPluginPage()
+	f := NewFlagsPage()
 
 	var pages []Pages
 	pages = append(pages, &w)
 	pages = append(pages, &p)
+	pages = append(pages, &f)
 
-	return HelpUI{pages: pages}
+	return HelpUI{pages: pages, currentPage: 2}
 }
 
 func (m HelpUI) Init() tea.Cmd {

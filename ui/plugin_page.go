@@ -20,44 +20,6 @@ func (i Item) Title() string       { return i.ItemTitle }
 func (i Item) Description() string { return i.Desc }
 func (i Item) FilterValue() string { return i.ItemTitle }
 
-var (
-	defaultWidth = 20
-
-	activeTabBorder = lipgloss.Border{
-		Top:         "─",
-		Bottom:      " ",
-		Left:        "│",
-		Right:       "│",
-		TopLeft:     "╭",
-		TopRight:    "╮",
-		BottomLeft:  "┘",
-		BottomRight: "└",
-	}
-	highlight = lipgloss.AdaptiveColor{Light: "#13002D", Dark: "#22ADF6"}
-	tabBorder = lipgloss.Border{
-		Top:         "─",
-		Bottom:      "─",
-		Left:        "│",
-		Right:       "│",
-		TopLeft:     "╭",
-		TopRight:    "╮",
-		BottomLeft:  "┴",
-		BottomRight: "┴",
-	}
-	tab = lipgloss.NewStyle().
-		Border(tabBorder, true).
-		BorderForeground(highlight).
-		Padding(0, 1)
-	activeTab = tab.Copy().Border(activeTabBorder, true)
-
-	tabGap = tab.Copy().
-		BorderTop(false).
-		BorderLeft(false).
-		BorderRight(false)
-
-	docStyle = lipgloss.NewStyle().Padding(1, 2, 0, 2)
-)
-
 type PluginPage struct {
 	Tabs       []string
 	TabContent []list.Model
