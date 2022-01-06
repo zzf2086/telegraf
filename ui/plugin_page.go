@@ -28,7 +28,7 @@ type PluginPage struct {
 }
 
 func createPluginList(content []list.Item) list.Model {
-	pluginList := list.NewModel(content, list.NewDefaultDelegate(), 20, 14)
+	pluginList := list.NewModel(content, list.NewDefaultDelegate(), 50, 14)
 	pluginList.SetShowStatusBar(false)
 	pluginList.SetShowTitle(false)
 
@@ -88,7 +88,9 @@ func (p *PluginPage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int) 
 			}
 			return m, nil, 1
 		case "backspace":
-			return m, nil, 0
+			if p.TabContent[p.activatedTab].FilterState() != list.Filtering {
+				return m, nil, 0
+			}
 		}
 	}
 
