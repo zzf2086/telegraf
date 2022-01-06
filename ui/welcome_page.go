@@ -12,14 +12,6 @@ import (
 
 const listHeight = 14
 
-type item struct {
-	title, desc string
-}
-
-func (i item) Title() string       { return i.title }
-func (i item) Description() string { return i.desc }
-func (i item) FilterValue() string { return i.title }
-
 type WelcomePage struct {
 	Tabs       []string
 	TabContent []list.Model
@@ -38,8 +30,8 @@ func NewWelcomePage(v string) WelcomePage {
 	}
 
 	itemsWelcome := []list.Item{
-		item{title: "Show Plugins", desc: "All the plugins supported by Telegraf"},
-		item{title: "Show Flags", desc: "Flags come with Telegraf"},
+		Item{ItemTitle: "Show Plugins", Desc: "All the plugins supported by Telegraf"},
+		Item{ItemTitle: "Show Flags", Desc: "Flags come with Telegraf"},
 	}
 
 	itemsTutorial := []list.Item{}
@@ -95,13 +87,13 @@ func (w *WelcomePage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int)
 			return m, nil, 0
 		case "enter":
 			listItem := w.TabContent[w.activatedTab].SelectedItem()
-			i, ok := listItem.(item)
+			i, ok := listItem.(Item)
 			if !ok {
 				return m, nil, 0
 			}
-			if i.title == "Show Plugins" {
+			if i.ItemTitle == "Show Plugins" {
 				return m, nil, 1
-			} else if i.title == "Show Flags" {
+			} else if i.ItemTitle == "Show Flags" {
 				return m, nil, 2
 			}
 
