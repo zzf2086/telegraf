@@ -175,7 +175,7 @@ func FlagsContent() list.Model {
 		styledFlags = append(styledFlags, Item{ItemTitle: "--" + f.Name, Desc: f.Usage})
 	}
 
-	l := list.NewModel(styledFlags, itemDelegate{}, 50, 14)
+	l := list.NewModel(styledFlags, itemDelegate{}, 50, listHeight)
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 	l.Styles.Title = titleStyle

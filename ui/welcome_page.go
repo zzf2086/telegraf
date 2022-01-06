@@ -10,8 +10,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const listHeight = 14
-
 type WelcomePage struct {
 	Tabs       []string
 	TabContent []list.Model

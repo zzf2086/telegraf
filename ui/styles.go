@@ -4,6 +4,7 @@ import "github.com/charmbracelet/lipgloss"
 
 var (
 	defaultWidth = 80
+	listHeight   = 14
 
 	activeTabBorder = lipgloss.Border{
 		Top:         "─",

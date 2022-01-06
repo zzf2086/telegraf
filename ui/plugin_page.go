@@ -28,7 +28,7 @@ type PluginPage struct {
 }
 
 func createPluginList(content []list.Item) list.Model {
-	pluginList := list.NewModel(content, list.NewDefaultDelegate(), 50, 14)
+	pluginList := list.NewModel(content, list.NewDefaultDelegate(), 50, listHeight)
 	pluginList.SetShowStatusBar(false)
 	pluginList.SetShowTitle(false)
 
