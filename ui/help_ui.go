@@ -4,8 +4,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+var (
+	currentPage = 0
+)
+
 type Pages interface {
-	Update(tea.Model, tea.Msg) (tea.Model, tea.Cmd)
+	Update(tea.Model, tea.Msg) (tea.Model, tea.Cmd, int)
 	View() string
 }
 
@@ -15,8 +19,6 @@ type HelpUI struct {
 	// Tutorial Screen (Guide to how Telegraf works, like the getting started page in the docs)
 	// Plugin List screen (usage, all plugins listed)
 	pages []Pages
-
-	currentPage int
 }
 
 func NewHelpUI(version string) HelpUI {
@@ -35,7 +37,7 @@ func NewHelpUI(version string) HelpUI {
 	pages = append(pages, &p)
 	pages = append(pages, &f)
 
-	return HelpUI{pages: pages, currentPage: 2}
+	return HelpUI{pages: pages}
 }
 
 func (m HelpUI) Init() tea.Cmd {
@@ -43,9 +45,11 @@ func (m HelpUI) Init() tea.Cmd {
 }
 
 func (m HelpUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return m.pages[m.currentPage].Update(m, msg)
+	model, cmd, pageNumber := m.pages[currentPage].Update(m, msg)
+	currentPage = pageNumber
+	return model, cmd
 }
 
 func (m HelpUI) View() string {
-	return m.pages[m.currentPage].View()
+	return m.pages[currentPage].View()
 }

@@ -70,29 +70,31 @@ func NewPluginPage() PluginPage {
 	return PluginPage{Tabs: tabs, TabContent: t}
 }
 
-func (p *PluginPage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd) {
+func (p *PluginPage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
 		// These keys should exit the program.
 		case "ctrl+c", "q":
-			return m, tea.Quit
+			return m, tea.Quit, 1
 		case "right":
 			if p.activatedTab < len(p.Tabs)-1 {
 				p.activatedTab++
 			}
-			return m, nil
+			return m, nil, 1
 		case "left":
 			if p.activatedTab > 0 {
 				p.activatedTab--
 			}
-			return m, nil
+			return m, nil, 1
+		case "backspace":
+			return m, nil, 0
 		}
 	}
 
 	var cmd tea.Cmd
 	p.TabContent[p.activatedTab], cmd = p.TabContent[p.activatedTab].Update(msg)
-	return m, cmd
+	return m, cmd, 1
 }
 
 func (p *PluginPage) View() string {

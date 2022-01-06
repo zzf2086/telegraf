@@ -10,7 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-const listHeight = 20
+const listHeight = 14
 
 var version string
 
@@ -27,6 +27,9 @@ type WelcomePage struct {
 	TabContent []list.Model
 
 	activatedTab int
+
+	tempContent        string
+	selectedMenuOption *Item
 }
 
 func NewWelcomePage(v string) WelcomePage {
@@ -49,36 +52,74 @@ func NewWelcomePage(v string) WelcomePage {
 
 	var tabcontent []list.Model
 	defaultWidth = 80
-	tabcontent = append(tabcontent, list.NewModel(itemsWelcome, list.NewDefaultDelegate(), defaultWidth, listHeight))
+	welcomePageOptions := list.NewModel(itemsWelcome, list.NewDefaultDelegate(), defaultWidth, listHeight)
+	// s := "Welcome to Telegraf! 🥳"
+
+	// s += fmt.Sprintf("You are on %s", version)
+
+	// s := lipgloss.JoinVertical(lipgloss.Left, "Welcome to Telegraf! 🥳")
+
+	// welcomePageOptions.Title = s
+	tabcontent = append(tabcontent, welcomePageOptions)
 	tabcontent = append(tabcontent, list.NewModel(itemsTutorial, list.DefaultDelegate{
 		ShowDescription: false,
 		Styles:          list.NewDefaultItemStyles(),
 	}, defaultWidth, listHeight))
-	return WelcomePage{Tabs: tabs, TabContent: tabcontent}
+
+	in := `# Telegraf
+
+## Intro
+
+Telegraf is an agent for collecting, processing, aggregating, and writing metrics. Based on a plugin system to enable developers in the community to easily add support for additional metric collection. There are *four* distinct types of plugins:
+
+1. **Input** Plugins collect metrics from the system, services, or 3rd party APIs
+2. **Processor** Plugins transform, decorate, and/or filter metrics
+3. **Aggregator** Plugins create aggregate metrics (e.g. mean, min, max, quantiles, etc.)
+4. **Output** Plugins write metrics to various destinations
+	`
+	r, _ := glamour.NewTermRenderer(
+		// detect background color and pick either the default dark or light theme
+		glamour.WithAutoStyle(),
+	)
+	out, _ := r.Render(in)
+
+	return WelcomePage{Tabs: tabs, TabContent: tabcontent, tempContent: out}
 }
 
-func (w *WelcomePage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd) {
+func (w *WelcomePage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch keypress := msg.String(); keypress {
 		// These keys should exit the program.
 		case "ctrl+c", "q":
-			return m, tea.Quit
+			return m, tea.Quit, 0
 		case "right":
 			if w.activatedTab < len(w.Tabs)-1 {
 				w.activatedTab++
 			}
-			return m, nil
+			return m, nil, 0
 		case "left":
 			if w.activatedTab > 0 {
 				w.activatedTab--
 			}
-			return m, nil
+			return m, nil, 0
+		case "enter":
+			listItem := w.TabContent[w.activatedTab].SelectedItem()
+			i, ok := listItem.(item)
+			if !ok {
+				return m, nil, 0
+			}
+			if i.title == "Show Plugins" {
+				return m, nil, 1
+			} else if i.title == "Show Flags" {
+				return m, nil, 2
+			}
+
 		}
 	}
 	var cmd tea.Cmd
 	w.TabContent[w.activatedTab], cmd = w.TabContent[w.activatedTab].Update(msg)
-	return m, cmd
+	return m, cmd, 0
 }
 
 func (w *WelcomePage) View() string {
@@ -116,43 +157,42 @@ func (w *WelcomePage) View() string {
 		if err != nil {
 			return err.Error()
 		}
-		// list
+		// // list
 		_, err = doc.WriteString(w.TabContent[w.activatedTab].View())
 		if err != nil {
 			return err.Error()
 		}
+
+		// content := lipgloss.JoinVertical(lipgloss.Left, s, w.TabContent[w.activatedTab].View())
+		// _, err := doc.WriteString(content)
+		// if err != nil {
+		// 	return err.Error()
+		// }
 	} else {
-		// Tutorial tab
-		in := `# Telegraph
+		// //Tutorial tab
+		// in := `# Telegraph
 
-## Intro
+		// ## Intro
 
-Telegraf is an agent for collecting, processing, aggregating, and writing metrics. Based on a plugin system to enable developers in the community to easily add support for additional metric collection. There are *four* distinct types of plugins:
+		// Telegraf is an agent for collecting, processing, aggregating, and writing metrics. Based on a plugin system to enable developers in the community to easily add support for additional metric collection. There are *four* distinct types of plugins:
 
-1. **Input** Plugins collect metrics from the system, services, or 3rd party APIs
-2. **Processor** Plugins transform, decorate, and/or filter metrics
-3. **Aggregator** Plugins create aggregate metrics (e.g. mean, min, max, quantiles, etc.) 
-4. **Output** Plugins write metrics to various destinations
+		// 1. **Input** Plugins collect metrics from the system, services, or 3rd party APIs
+		// 2. **Processor** Plugins transform, decorate, and/or filter metrics
+		// 3. **Aggregator** Plugins create aggregate metrics (e.g. mean, min, max, quantiles, etc.)
+		// 4. **Output** Plugins write metrics to various destinations
 
-## Github Links
+		// ## Github Links
 
-You can also check out more info on Github:
+		// You can also check out more info on Github:
 
- - [Input](https://github.com/influxdata/telegraf/blob/master/docs/INPUTS.md)
- - [Processor](https://github.com/influxdata/telegraf/blob/master/docs/PROCESSORS.md)
- - [Aggregator](https://github.com/influxdata/telegraf/blob/master/docs/AGGREGATORS.md)
- - [Output](https://github.com/influxdata/telegraf/blob/master/docs/OUTPUTS.md)
+		//  - [Input](https://github.com/influxdata/telegraf/blob/master/docs/INPUTS.md)
+		//  - [Processor](https://github.com/influxdata/telegraf/blob/master/docs/PROCESSORS.md)
+		//  - [Aggregator](https://github.com/influxdata/telegraf/blob/master/docs/AGGREGATORS.md)
+		//  - [Output](https://github.com/influxdata/telegraf/blob/master/docs/OUTPUTS.md)
 
-`
-		r, _ := glamour.NewTermRenderer(
-			// detect background color and pick either the default dark or light theme
-			glamour.WithAutoStyle(),
-		)
-		out, err := r.Render(in)
-		if err != nil {
-			return err.Error()
-		}
-		_, err = doc.WriteString(out)
+		// `
+
+		_, err := doc.WriteString(w.tempContent)
 		if err != nil {
 			return err.Error()
 		}
