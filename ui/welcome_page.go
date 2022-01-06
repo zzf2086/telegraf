@@ -12,8 +12,6 @@ import (
 
 const listHeight = 14
 
-var version string
-
 type item struct {
 	title, desc string
 }
@@ -27,8 +25,9 @@ type WelcomePage struct {
 	TabContent []list.Model
 
 	activatedTab int
+	version      string
 
-	tempContent        string
+	tutorialContent    string
 	selectedMenuOption *Item
 }
 
@@ -37,35 +36,21 @@ func NewWelcomePage(v string) WelcomePage {
 		"Welcome Page",
 		"Tutorial",
 	}
-	version = v
 
 	itemsWelcome := []list.Item{
 		item{title: "Show Plugins", desc: "All the plugins supported by Telegraf"},
 		item{title: "Show Flags", desc: "Flags come with Telegraf"},
 	}
 
-	itemsTutorial := []list.Item{
-		item{title: "Installing", desc: ""},
-		item{title: "Configuring and Running", desc: ""},
-		item{title: "Transforming Data", desc: ""},
-	}
+	itemsTutorial := []list.Item{}
 
 	var tabcontent []list.Model
-	defaultWidth = 80
 	welcomePageOptions := list.NewModel(itemsWelcome, list.NewDefaultDelegate(), defaultWidth, listHeight)
-	// s := "Welcome to Telegraf! 🥳"
-
-	// s += fmt.Sprintf("You are on %s", version)
-
-	// s := lipgloss.JoinVertical(lipgloss.Left, "Welcome to Telegraf! 🥳")
-
-	// welcomePageOptions.Title = s
+	tutorialPageOptions := list.NewModel(itemsTutorial, list.NewDefaultDelegate(), defaultWidth, listHeight)
 	tabcontent = append(tabcontent, welcomePageOptions)
-	tabcontent = append(tabcontent, list.NewModel(itemsTutorial, list.DefaultDelegate{
-		ShowDescription: false,
-		Styles:          list.NewDefaultItemStyles(),
-	}, defaultWidth, listHeight))
+	tabcontent = append(tabcontent, tutorialPageOptions)
 
+	// Tutorial Content
 	in := `# Telegraf
 
 ## Intro
@@ -83,7 +68,12 @@ Telegraf is an agent for collecting, processing, aggregating, and writing metric
 	)
 	out, _ := r.Render(in)
 
-	return WelcomePage{Tabs: tabs, TabContent: tabcontent, tempContent: out}
+	return WelcomePage{
+		Tabs:            tabs,
+		TabContent:      tabcontent,
+		tutorialContent: out,
+		version:         v,
+	}
 }
 
 func (w *WelcomePage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int) {
@@ -152,53 +142,26 @@ func (w *WelcomePage) View() string {
 	if w.activatedTab == 0 {
 		// Welcome Page tab
 		s := "Welcome to Telegraf! 🥳 \n\n"
-		s += fmt.Sprintf("You are on %s \n\n", version)
+		s += fmt.Sprintf("You are on %s \n\n", w.version)
 		_, err := doc.WriteString(s)
 		if err != nil {
 			return err.Error()
 		}
-		// // list
+		// list
 		_, err = doc.WriteString(w.TabContent[w.activatedTab].View())
 		if err != nil {
 			return err.Error()
 		}
-
-		// content := lipgloss.JoinVertical(lipgloss.Left, s, w.TabContent[w.activatedTab].View())
-		// _, err := doc.WriteString(content)
-		// if err != nil {
-		// 	return err.Error()
-		// }
 	} else {
-		// //Tutorial tab
-		// in := `# Telegraph
-
-		// ## Intro
-
-		// Telegraf is an agent for collecting, processing, aggregating, and writing metrics. Based on a plugin system to enable developers in the community to easily add support for additional metric collection. There are *four* distinct types of plugins:
-
-		// 1. **Input** Plugins collect metrics from the system, services, or 3rd party APIs
-		// 2. **Processor** Plugins transform, decorate, and/or filter metrics
-		// 3. **Aggregator** Plugins create aggregate metrics (e.g. mean, min, max, quantiles, etc.)
-		// 4. **Output** Plugins write metrics to various destinations
-
-		// ## Github Links
-
-		// You can also check out more info on Github:
-
-		//  - [Input](https://github.com/influxdata/telegraf/blob/master/docs/INPUTS.md)
-		//  - [Processor](https://github.com/influxdata/telegraf/blob/master/docs/PROCESSORS.md)
-		//  - [Aggregator](https://github.com/influxdata/telegraf/blob/master/docs/AGGREGATORS.md)
-		//  - [Output](https://github.com/influxdata/telegraf/blob/master/docs/OUTPUTS.md)
-
-		// `
-
-		_, err := doc.WriteString(w.tempContent)
+		// Tutorial tab
+		_, err := doc.WriteString(w.tutorialContent)
 		if err != nil {
 			return err.Error()
 		}
 	}
 
-	// style
+	// Set default font color to be Influx color
+	// Color code is from https://influxdata.github.io/branding/visual/colors/
 	docStyle.Foreground(lipgloss.Color("#BF2FE5"))
 
 	return docStyle.Render(doc.String())

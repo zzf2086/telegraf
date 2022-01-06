@@ -3,7 +3,7 @@ package ui
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	defaultWidth = 20
+	defaultWidth = 80
 
 	activeTabBorder = lipgloss.Border{
 		Top:         "─",
