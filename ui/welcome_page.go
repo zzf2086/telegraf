@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -107,20 +108,54 @@ func (w *WelcomePage) View() string {
 		}
 	}
 
-	// Welcome message
-	if w.activatedTab == 0 { // Welcome Page tab
+	if w.activatedTab == 0 {
+		// Welcome Page tab
 		s := "Welcome to Telegraf! 🥳 \n\n"
 		s += fmt.Sprintf("You are on %s \n\n", version)
 		_, err := doc.WriteString(s)
 		if err != nil {
 			return err.Error()
 		}
-	}
+		// list
+		_, err = doc.WriteString(w.TabContent[w.activatedTab].View())
+		if err != nil {
+			return err.Error()
+		}
+	} else {
+		// Tutorial tab
+		in := `# Telegraph
 
-	// list
-	_, err := doc.WriteString(w.TabContent[w.activatedTab].View())
-	if err != nil {
-		return err.Error()
+## Intro
+
+Telegraf is an agent for collecting, processing, aggregating, and writing metrics. Based on a plugin system to enable developers in the community to easily add support for additional metric collection. There are *four* distinct types of plugins:
+
+1. **Input** Plugins collect metrics from the system, services, or 3rd party APIs
+2. **Processor** Plugins transform, decorate, and/or filter metrics
+3. **Aggregator** Plugins create aggregate metrics (e.g. mean, min, max, quantiles, etc.) 
+4. **Output** Plugins write metrics to various destinations
+
+## Github Links
+
+You can also check out more info on Github:
+
+ - [Input](https://github.com/influxdata/telegraf/blob/master/docs/INPUTS.md)
+ - [Processor](https://github.com/influxdata/telegraf/blob/master/docs/PROCESSORS.md)
+ - [Aggregator](https://github.com/influxdata/telegraf/blob/master/docs/AGGREGATORS.md)
+ - [Output](https://github.com/influxdata/telegraf/blob/master/docs/OUTPUTS.md)
+
+`
+		r, _ := glamour.NewTermRenderer(
+			// detect background color and pick either the default dark or light theme
+			glamour.WithAutoStyle(),
+		)
+		out, err := r.Render(in)
+		if err != nil {
+			return err.Error()
+		}
+		_, err = doc.WriteString(out)
+		if err != nil {
+			return err.Error()
+		}
 	}
 
 	// style
