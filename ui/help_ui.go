@@ -15,19 +15,15 @@ type Pages interface {
 
 type HelpUI struct {
 
-	// Welcome Screen (main page to get to other pages)
-	// Tutorial Screen (Guide to how Telegraf works, like the getting started page in the docs)
-	// Plugin List screen (usage, all plugins listed)
+	// Welcome Page (main page to get to other pages)
+	// 		Welcome Tab
+	// 		Tutorial Tab (Guide to how Telegraf works, explain plugins)
+	// Plugin List Page (usage, all plugins listed)
+	// Flag List Page (usage, all plugins listed)
 	pages []Pages
 }
 
 func NewHelpUI(version string) HelpUI {
-	// [ Welcome ] [ Tutorial ]
-	// Telegraf, the plugin thingie
-	//
-	// > Show Plugins
-	// > Show Flags
-
 	w := NewWelcomePage(version)
 	p := NewPluginPage()
 	f := NewFlagsPage()
