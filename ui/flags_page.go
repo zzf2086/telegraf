@@ -89,36 +89,36 @@ func (f *FlagsPage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int) {
 		switch keypress := msg.String(); keypress {
 		// These keys should exit the program.
 		case "ctrl+c", "q":
-			return m, tea.Quit, 2
+			return m, tea.Quit, FLAG_PAGE
 		case "right":
 			if f.activatedTab < len(f.Tabs)-1 {
 				f.activatedTab++
 			}
-			return m, nil, 2
+			return m, nil, FLAG_PAGE
 		case "left":
 			if f.activatedTab > 0 {
 				f.activatedTab--
 			}
-			return m, nil, 2
+			return m, nil, FLAG_PAGE
 		case "enter":
 			listItem := f.TabContent[f.activatedTab].SelectedItem()
 			i, ok := listItem.(Item)
 			if !ok {
-				return m, nil, 2
+				return m, nil, FLAG_PAGE
 			}
 			f.selectedFlag = &i
 		case "backspace":
 			if f.selectedFlag != nil {
 				f.selectedFlag = nil
-				return m, nil, 2
+				return m, nil, FLAG_PAGE
 			}
-			return m, nil, 0
+			return m, nil, WELCOME_PAGE
 		}
 	}
 
 	var cmd tea.Cmd
 	f.TabContent[f.activatedTab], cmd = f.TabContent[f.activatedTab].Update(msg)
-	return m, cmd, 2
+	return m, cmd, FLAG_PAGE
 }
 
 func (f *FlagsPage) View() string {

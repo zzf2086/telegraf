@@ -72,34 +72,34 @@ func (w *WelcomePage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int)
 		switch keypress := msg.String(); keypress {
 		// These keys should exit the program.
 		case "ctrl+c", "q":
-			return m, tea.Quit, 0
+			return m, tea.Quit, WELCOME_PAGE
 		case "right":
 			if w.activatedTab < len(w.Tabs)-1 {
 				w.activatedTab++
 			}
-			return m, nil, 0
+			return m, nil, WELCOME_PAGE
 		case "left":
 			if w.activatedTab > 0 {
 				w.activatedTab--
 			}
-			return m, nil, 0
+			return m, nil, WELCOME_PAGE
 		case "enter":
 			listItem := w.TabContent[w.activatedTab].SelectedItem()
 			i, ok := listItem.(Item)
 			if !ok {
-				return m, nil, 0
+				return m, nil, WELCOME_PAGE
 			}
 			if i.ItemTitle == "Show Plugins" {
-				return m, nil, 1
+				return m, nil, PLUGIN_PAGE
 			} else if i.ItemTitle == "Show Flags" {
-				return m, nil, 2
+				return m, nil, FLAG_PAGE
 			}
 
 		}
 	}
 	var cmd tea.Cmd
 	w.TabContent[w.activatedTab], cmd = w.TabContent[w.activatedTab].Update(msg)
-	return m, cmd, 0
+	return m, cmd, WELCOME_PAGE
 }
 
 func (w *WelcomePage) View() string {

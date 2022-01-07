@@ -76,27 +76,27 @@ func (p *PluginPage) Update(m tea.Model, msg tea.Msg) (tea.Model, tea.Cmd, int) 
 		switch keypress := msg.String(); keypress {
 		// These keys should exit the program.
 		case "ctrl+c", "q":
-			return m, tea.Quit, 1
+			return m, tea.Quit, PLUGIN_PAGE
 		case "right":
 			if p.activatedTab < len(p.Tabs)-1 {
 				p.activatedTab++
 			}
-			return m, nil, 1
+			return m, nil, PLUGIN_PAGE
 		case "left":
 			if p.activatedTab > 0 {
 				p.activatedTab--
 			}
-			return m, nil, 1
+			return m, nil, PLUGIN_PAGE
 		case "backspace":
 			if p.TabContent[p.activatedTab].FilterState() != list.Filtering {
-				return m, nil, 0
+				return m, nil, WELCOME_PAGE
 			}
 		}
 	}
 
 	var cmd tea.Cmd
 	p.TabContent[p.activatedTab], cmd = p.TabContent[p.activatedTab].Update(msg)
-	return m, cmd, 1
+	return m, cmd, PLUGIN_PAGE
 }
 
 func (p *PluginPage) View() string {

@@ -4,8 +4,14 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+const (
+	WELCOME_PAGE = 0
+	PLUGIN_PAGE  = 1
+	FLAG_PAGE    = 2
+)
+
 var (
-	currentPage = 0
+	currentPage = WELCOME_PAGE
 )
 
 type Pages interface {
