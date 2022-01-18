@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	cloud.google.com/go/bigquery v1.8.0
-	cloud.google.com/go/monitoring v0.2.0
+	cloud.google.com/go/monitoring v1.2.0
 	cloud.google.com/go/pubsub v1.17.0
 	collectd.org v0.5.0
 	github.com/Azure/azure-event-hubs-go/v3 v3.3.13
@@ -69,7 +69,7 @@ require (
 	github.com/gophercloud/gophercloud v0.16.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.4.2
-	github.com/gosnmp/gosnmp v1.33.0
+	github.com/gosnmp/gosnmp v1.34.0
 	github.com/grid-x/modbus v0.0.0-20211113184042-7f2251c342c9
 	github.com/gwos/tcg/sdk v0.0.0-20211223101342-35fbd1ae683c
 	github.com/harlow/kinesis-consumer v0.3.6-0.20210911031324-5a873d6e9fec
@@ -140,14 +140,14 @@ require (
 	go.opentelemetry.io/otel/sdk/metric v0.24.0
 	go.starlark.net v0.0.0-20210406145628-7a1108eaa012
 	golang.org/x/net v0.0.0-20211208012354-db4efeb81f4b
-	golang.org/x/oauth2 v0.0.0-20210805134026-6f1e6394065a
+	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20211214234402-4825e8c3871d
 	golang.org/x/text v0.3.7
 	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20211230205640-daad0b7ba671
 	gonum.org/v1/gonum v0.9.3
-	google.golang.org/api v0.54.0
-	google.golang.org/genproto v0.0.0-20210827211047-25e5f791fe06
+	google.golang.org/api v0.63.0
+	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa
 	google.golang.org/grpc v1.41.0
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/gorethink/gorethink.v3 v3.0.5
@@ -161,7 +161,7 @@ require (
 )
 
 require (
-	cloud.google.com/go v0.93.3 // indirect
+	cloud.google.com/go v0.99.0 // indirect
 	code.cloudfoundry.org/clock v1.0.0 // indirect
 	github.com/Azure/azure-amqp-common-go/v3 v3.1.0 // indirect
 	github.com/Azure/azure-pipeline-go v0.2.3 // indirect
@@ -201,7 +201,10 @@ require (
 	github.com/bitly/go-hostpool v0.1.0 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible // indirect
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
+	github.com/census-instrumentation/opencensus-proto v0.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
+	github.com/cncf/udpa/go v0.0.0-20201120205902-5459f2c99403 // indirect
+	github.com/cncf/xds/go v0.0.0-20210805033703-aa0b78936158 // indirect
 	github.com/containerd/cgroups v1.0.1 // indirect
 	github.com/containerd/containerd v1.5.9 // indirect
 	github.com/couchbase/gomemcached v0.1.3 // indirect
@@ -215,6 +218,8 @@ require (
 	github.com/eapache/go-xerial-snappy v0.0.0-20180814174437-776d5712da21 // indirect
 	github.com/eapache/queue v1.1.0 // indirect
 	github.com/echlebek/timeproxy v1.0.0 // indirect
+	github.com/envoyproxy/go-control-plane v0.9.10-0.20210907150352-cf90f659a021 // indirect
+	github.com/envoyproxy/protoc-gen-validate v0.1.0 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.5+incompatible // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
 	github.com/go-logr/logr v0.4.0 // indirect
@@ -230,7 +235,7 @@ require (
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
+	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/grid-x/serial v0.0.0-20211107191517-583c7356b3aa // indirect
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0 // indirect
