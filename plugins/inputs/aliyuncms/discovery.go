@@ -17,6 +17,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
+	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/internal/limiter"
 	"github.com/pkg/errors"
@@ -119,6 +120,9 @@ func newDiscoveryTool(regions []string, project string, lg telegraf.Logger, cred
 		case "acs_slb_dashboard":
 			dscReq[region] = slb.CreateDescribeLoadBalancersRequest()
 			responseObjectIDKey = "LoadBalancerId"
+                case "acs_polardb":
+                        dscReq[region] = polardb.CreateDescribeDBClustersRequest()
+                        responseObjectIDKey = "DBClusterId"
 		case "acs_memcache":
 			return nil, noDiscoverySupportErr
 		case "acs_ocs":
@@ -145,8 +149,8 @@ func newDiscoveryTool(regions []string, project string, lg telegraf.Logger, cred
 		case "acs_cdn":
 			//API replies are in its own format.
 			return nil, noDiscoverySupportErr
-		case "acs_polardb":
-			return nil, noDiscoverySupportErr
+		//case "acs_polardb":
+			//return nil, noDiscoverySupportErr
 		case "acs_gdb":
 			return nil, noDiscoverySupportErr
 		case "acs_ads":
@@ -313,12 +317,31 @@ func (dt *discoveryTool) parseDiscoveryResponse(resp *responses.CommonResponse) 
 			if !foundDataItem {
 				return nil, errors.Errorf("Didn't find array item in root key %q", key)
 			}
+               case "Items":
+                        foundRootKey = true
+                        rootKeyVal, ok := val.(map[string]interface{})
+                        if !ok {
+                                return nil, errors.Errorf("Content of root key %q, is not an object: %v", key, val)
+                        }
+                        //It should contain the array with discovered data
+                        for _, item := range rootKeyVal{
+                                if pdResp.data, foundDataItem = item.([]interface{}); foundDataItem {
+                                        break
+                                }
+                        }
+                        if !foundDataItem {
+                                return nil, errors.Errorf("Didn't find array item in root key %q", key)
+                        }
 		case "TotalCount":
 			pdResp.totalCount = int(val.(float64))
 		case "PageSize":
 			pdResp.pageSize = int(val.(float64))
 		case "PageNumber":
 			pdResp.pageNumber = int(val.(float64))
+                case "TotalRecordCount":
+                        pdResp.totalCount = int(val.(float64))
+                case "PageRecordCount":
+                        pdResp.pageSize = int(val.(float64))
 		}
 	}
 	if !foundRootKey {
@@ -401,12 +424,18 @@ func (dt *discoveryTool) getDiscoveryDataAcrossRegions(lmtr chan bool) (map[stri
 		commonRequest := requests.NewCommonRequest()
 		commonRequest.Method = rpcReq.GetMethod()
 		commonRequest.Product = rpcReq.GetProduct()
-		commonRequest.Domain = rpcReq.GetDomain()
 		commonRequest.Version = rpcReq.GetVersion()
 		commonRequest.Scheme = rpcReq.GetScheme()
 		commonRequest.ApiName = rpcReq.GetActionName()
 		commonRequest.QueryParams = rpcReq.QueryParams
-		commonRequest.QueryParams["PageSize"] = strconv.Itoa(dt.reqDefaultPageSize)
+                if rpcReq.GetProduct() == "polardb" {
+                        commonRequest.Domain = "polardb.aliyuncs.com"
+                        dt.reqDefaultPageSize = 50
+		        commonRequest.QueryParams["PageSize"] = strconv.Itoa(dt.reqDefaultPageSize)
+                } else {
+	                 commonRequest.Domain = rpcReq.GetDomain()
+		         commonRequest.QueryParams["PageSize"] = strconv.Itoa(dt.reqDefaultPageSize)
+                }
 		commonRequest.TransToAcsRequest()
 
 		//Get discovery data using common request

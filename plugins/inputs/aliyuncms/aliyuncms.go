@@ -87,6 +87,9 @@ const (
   
   ## How often the discovery API call executed (default 1m)
   #discovery_interval = "1m"
+
+  ## Set aliyun AssumeRole DurationSeconds, Min 900, Max 3600
+  role_session_expiration = 3600
   
   ## Metrics to Pull (Required)
   [[inputs.aliyuncms.metrics]]
@@ -135,6 +138,7 @@ type (
 		PrivateKey        string `toml:"private_key"`
 		PublicKeyID       string `toml:"public_key_id"`
 		RoleName          string `toml:"role_name"`
+                RoleSessionExpiration int `toml:"role_session_expiration"`
 
 		Regions           []string        `toml:"regions"`
 		DiscoveryInterval config.Duration `toml:"discovery_interval"`
@@ -224,7 +228,7 @@ func (s *AliyunCMS) Init() error {
 	}
 
 	var (
-		roleSessionExpiration = 600
+		// roleSessionExpiration = 3600
 		sessionExpiration     = 600
 	)
 	configuration := &providers.Configuration{
@@ -233,7 +237,7 @@ func (s *AliyunCMS) Init() error {
 		AccessKeyStsToken:     s.AccessKeyStsToken,
 		RoleArn:               s.RoleArn,
 		RoleSessionName:       s.RoleSessionName,
-		RoleSessionExpiration: &roleSessionExpiration,
+		RoleSessionExpiration: &s.RoleSessionExpiration,
 		PrivateKey:            s.PrivateKey,
 		PublicKeyID:           s.PublicKeyID,
 		SessionExpiration:     &sessionExpiration,
