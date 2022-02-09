@@ -15,6 +15,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
+        r_kvstore "github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/vpc"
@@ -123,6 +124,9 @@ func newDiscoveryTool(regions []string, project string, lg telegraf.Logger, cred
 		case "acs_polardb":
 			dscReq[region] = polardb.CreateDescribeDBClustersRequest()
 			responseObjectIDKey = "DBClusterId"
+                case "acs_kvstore":
+                        dscReq[region] = r_kvstore.CreateDescribeInstancesRequest()
+                        responseObjectIDKey = "InstanceId"
 		case "acs_memcache":
 			return nil, noDiscoverySupportErr
 		case "acs_ocs":
@@ -142,8 +146,8 @@ func newDiscoveryTool(regions []string, project string, lg telegraf.Logger, cred
 		case "acs_vpc_eip":
 			dscReq[region] = vpc.CreateDescribeEipAddressesRequest()
 			responseObjectIDKey = "AllocationId"
-		case "acs_kvstore":
-			return nil, noDiscoverySupportErr
+		//case "acs_kvstore":
+		//	return nil, noDiscoverySupportErr
 		case "acs_mns_new":
 			return nil, noDiscoverySupportErr
 		case "acs_cdn":
