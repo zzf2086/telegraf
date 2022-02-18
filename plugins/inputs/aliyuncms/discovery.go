@@ -15,6 +15,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
 	dds "github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	hbase "github.com/aliyun/alibaba-cloud-sdk-go/services/hbase"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	r_kvstore "github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/rds"
@@ -131,6 +132,9 @@ func newDiscoveryTool(regions []string, project string, lg telegraf.Logger, cred
 		case "acs_mongodb":
 			dscReq[region] = dds.CreateDescribeDBInstancesRequest()
 			responseObjectIDKey = "DBInstanceId"
+		case "acs_hbaseue":
+			dscReq[region] = hbase.CreateDescribeInstancesRequest()
+			responseObjectIDKey = "ClusterId"
 		case "acs_memcache":
 			return nil, noDiscoverySupportErr
 		case "acs_ocs":
@@ -436,6 +440,7 @@ func (dt *discoveryTool) getDiscoveryDataAcrossRegions(lmtr chan bool) (map[stri
 		commonRequest.Scheme = rpcReq.GetScheme()
 		commonRequest.ApiName = rpcReq.GetActionName()
 		commonRequest.QueryParams = rpcReq.QueryParams
+		//fmt.Printf("xxxxxxx: %s\n", rpcReq.GetProduct())
 		if rpcReq.GetProduct() == "polardb" {
 			commonRequest.Domain = "polardb.aliyuncs.com"
 			dt.reqDefaultPageSize = 50
@@ -444,6 +449,8 @@ func (dt *discoveryTool) getDiscoveryDataAcrossRegions(lmtr chan bool) (map[stri
 			commonRequest.Domain = "mongodb.aliyuncs.com"
 			dt.reqDefaultPageSize = 30
 			commonRequest.QueryParams["PageSize"] = strconv.Itoa(dt.reqDefaultPageSize)
+		} else if rpcReq.GetProduct() == "HBase" {
+			commonRequest.Domain = "hbase.aliyuncs.com"
 		} else {
 			commonRequest.Domain = rpcReq.GetDomain()
 			commonRequest.QueryParams["PageSize"] = strconv.Itoa(dt.reqDefaultPageSize)
