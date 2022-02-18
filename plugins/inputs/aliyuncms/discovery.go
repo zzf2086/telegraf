@@ -13,6 +13,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
+	dds "github.com/aliyun/alibaba-cloud-sdk-go/services/dds"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/polardb"
 	r_kvstore "github.com/aliyun/alibaba-cloud-sdk-go/services/r-kvstore"
@@ -127,6 +128,9 @@ func newDiscoveryTool(regions []string, project string, lg telegraf.Logger, cred
 		case "acs_kvstore":
 			dscReq[region] = r_kvstore.CreateDescribeInstancesRequest()
 			responseObjectIDKey = "InstanceId"
+		case "acs_mongodb":
+			dscReq[region] = dds.CreateDescribeDBInstancesRequest()
+			responseObjectIDKey = "DBInstanceId"
 		case "acs_memcache":
 			return nil, noDiscoverySupportErr
 		case "acs_ocs":
@@ -159,8 +163,8 @@ func newDiscoveryTool(regions []string, project string, lg telegraf.Logger, cred
 			return nil, noDiscoverySupportErr
 		case "acs_ads":
 			return nil, noDiscoverySupportErr
-		case "acs_mongodb":
-			return nil, noDiscoverySupportErr
+		//case "acs_mongodb":
+		//	return nil, noDiscoverySupportErr
 		case "acs_express_connect":
 			return nil, noDiscoverySupportErr
 		case "acs_fc":
@@ -435,6 +439,10 @@ func (dt *discoveryTool) getDiscoveryDataAcrossRegions(lmtr chan bool) (map[stri
 		if rpcReq.GetProduct() == "polardb" {
 			commonRequest.Domain = "polardb.aliyuncs.com"
 			dt.reqDefaultPageSize = 50
+			commonRequest.QueryParams["PageSize"] = strconv.Itoa(dt.reqDefaultPageSize)
+		} else if rpcReq.GetProduct() == "Dds" {
+			commonRequest.Domain = "mongodb.aliyuncs.com"
+			dt.reqDefaultPageSize = 30
 			commonRequest.QueryParams["PageSize"] = strconv.Itoa(dt.reqDefaultPageSize)
 		} else {
 			commonRequest.Domain = rpcReq.GetDomain()
